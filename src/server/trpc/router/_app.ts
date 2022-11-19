@@ -1,5 +1,11 @@
 import { router } from "../trpc";
-export const appRouter = router({});
+import { authRouter } from "./auth";
+import { todoRouter } from "./todo";
+
+export const appRouter = router({
+  todo: todoRouter,
+  auth: authRouter,
+});
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
