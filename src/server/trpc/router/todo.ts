@@ -5,7 +5,7 @@ export const todoRouter = router({
   add: protectedProcedure
     .input(
       z.object({
-        content: z.string(),
+        content: z.string().min(1),
         isFavorite: z.boolean(),
       })
     )

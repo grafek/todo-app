@@ -1,11 +1,16 @@
+import { useSession } from "next-auth/react";
 import { trpc } from "../../utils/trpc";
 import TodoItem from "./TodoItem";
 
-function Todos() {
+function TodoList() {
   const { data: todos, isFetching } = trpc.todo.getAll.useQuery(undefined);
+  const { data: sessionData } = useSession();
+
+  if (!sessionData) return null;
 
   let todosContent;
   if (isFetching) {
+    // add loading spinner
     todosContent = <p>Fetching todos...</p>;
   }
 
@@ -22,4 +27,4 @@ function Todos() {
   );
 }
 
-export default Todos;
+export default TodoList;
