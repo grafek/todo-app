@@ -1,11 +1,25 @@
 import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
-import { AiOutlinePlus, AiFillStar } from "react-icons/ai";
+import type { Todo } from "@prisma/client";
+import type { Dispatch, SetStateAction } from "react";
+import { AiOutlinePlus, AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { getFirstNameFromSession } from "../../utils/getFirstName";
-import Modal from "../Modal";
+import { Modal } from "../UI";
 import AddTodo from "../Todo/AddTodo";
 
-function Header() {
+type TodoListProps = {
+  setFavoriteTodosList: Dispatch<SetStateAction<Todo[]>>;
+  setTodoList: Dispatch<SetStateAction<Todo[]>>;
+  setToggleFavorites: Dispatch<SetStateAction<boolean>>;
+  toggleFavorites: boolean;
+};
+
+function Header({
+  setTodoList,
+  setFavoriteTodosList,
+  setToggleFavorites: setToggleFavorites,
+  toggleFavorites,
+}: TodoListProps) {
   const { data: sessionData } = useSession();
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -31,9 +45,16 @@ function Header() {
 
   const loggedInContent = sessionData ? (
     <div className="flex gap-4">
-      <button>
-        {/* TODO: FILTER ITEMS WITH ONLY FAVORITES*/}
-        <AiFillStar className="text-2xl text-yellow-300" />
+      <button
+        onClick={() => {
+          setToggleFavorites((prev) => !prev);
+        }}
+      >
+        {toggleFavorites ? (
+          <AiFillStar className="text-xl text-yellow-300 md:text-2xl" />
+        ) : (
+          <AiOutlineStar className="text-xl md:text-2xl" />
+        )}
       </button>
 
       <button>
@@ -49,12 +70,16 @@ function Header() {
         actionTitle="Add TODO"
         setIsOpen={setIsModalOpen}
       >
-        <AddTodo />
+        <AddTodo
+          setTodoList={setTodoList}
+          setIsModalOpen={setIsModalOpen}
+          setFavoriteTodosList={setFavoriteTodosList}
+        />
       </Modal>
     </div>
   ) : null;
   return (
-    <header className="mx-auto flex w-full max-w-3xl justify-between pb-5">
+    <header className="mx-auto flex w-full justify-between pb-5">
       <button>Logo</button>
       <p className="max-w-[160px] text-center sm:max-w-none">
         {welcomeMessage}
