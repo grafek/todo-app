@@ -31,7 +31,7 @@ function Header({
     <span>
       👋 Hi,{" "}
       <a
-        className="font-semibold italic underline
+        className="font-semibold italic underline cursor-pointer
         "
         onClick={() => {
           signIn();
@@ -79,7 +79,7 @@ function Header({
     </div>
   ) : null;
   return (
-    <header className="mx-auto flex w-full justify-between pb-5">
+    <header className="mx-auto flex w-full justify-between pb-5 p-2">
       <button>Logo</button>
       <p className="max-w-[160px] text-center sm:max-w-none">
         {welcomeMessage}

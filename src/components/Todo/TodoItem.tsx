@@ -19,9 +19,11 @@ type TodoItemProps = {
   checkedTodosList: Todo[];
   favoriteTodosList: Todo[];
   todoList: Todo[];
+  cancelFetching: Promise<void>;
 };
 
 function TodoItem({
+  cancelFetching,
   todo,
   content,
   createdAt,
@@ -37,31 +39,42 @@ function TodoItem({
   const { mutate: deleteTodo, isLoading } = trpc.todo.delete.useMutation({
     onSuccess(todo) {
       setTodoList((prev) => prev.filter((item) => item.id !== todo.id));
+      setFavoriteTodosList((prev) =>
+        prev.filter((item) => item.id !== todo.id)
+      );
       setIsModalOpen(false);
     },
   });
+
   const { mutate: toggleChecked } = trpc.todo.toggleChecked.useMutation();
   const { mutate: toggleFavorites } = trpc.todo.toggleFavorite.useMutation();
 
-  const optimisticCheckTodos = () => {
+  const optimisticCheckTodos = async () => {
     if (checkedTodosList.some((item) => item.id === todo.id)) {
       setCheckedTodosList((prev) => prev.filter((item) => item.id !== todo.id));
     } else {
       setCheckedTodosList((prev) => [...prev, todo]);
     }
+    await cancelFetching;
     toggleChecked({
       id,
       isChecked: checkedTodosList.some((todo) => todo.id === id) ? false : true,
     });
   };
 
-  const optimisticFavoriteTodos = () => {
+  const optimisticFavoriteTodos = async () => {
     if (favoriteTodosList.some((item) => item.id === todo.id)) {
+      await cancelFetching;
       setFavoriteTodosList((prev) =>
         prev.filter((item) => item.id !== todo.id)
-      );
+        );
     } else {
-      setFavoriteTodosList((prev) => [...prev, todo]);
+      await cancelFetching;
+      setFavoriteTodosList((prev) =>
+        [...prev, todo].sort(
+          (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+        )
+      );
     }
     toggleFavorites({
       id,
@@ -81,7 +94,7 @@ function TodoItem({
       id={id}
       className={`${
         isModalOpen ? "bg-red-400 " : "bg-indigo-400 "
-      } flex items-center justify-between rounded-md  p-3 transition-colors duration-300 md:p-4`}
+      } relative flex items-center justify-between rounded-md p-4 transition-colors duration-300 md:py-6`}
     >
       <span className="relative">
         {content}
@@ -99,10 +112,6 @@ function TodoItem({
         </div>
       </span>
       <span className="relative flex gap-2">
-        <span className="absolute top-4 right-0 w-[185%] text-[12px] font-thin italic text-gray-300 md:top-5 md:w-[165%]">
-          created at: {createdAt.getHours()}:{createdAt.getMinutes()} |{" "}
-          {createdAt.getDay()}-{createdAt.getMonth()}-{createdAt.getFullYear()}
-        </span>
         <button onClick={optimisticCheckTodos}>
           <MdDone className="text-xl text-green-400 md:text-2xl" />
         </button>
@@ -121,6 +130,13 @@ function TodoItem({
             }}
           />
         </button>
+      </span>
+      <span className="absolute bottom-[2px] right-2  text-[12px] font-thin italic text-gray-200/70 ">
+        created at: {createdAt.getHours()}:
+        {createdAt.getUTCMinutes() < 10
+          ? "0" + createdAt.getUTCMinutes()
+          : createdAt.getUTCMinutes()}{" "}
+        | {createdAt.getDate()}-{createdAt.getMonth()}-{createdAt.getFullYear()}
       </span>
       <Modal
         isOpen={isModalOpen}

@@ -13,12 +13,13 @@ const Home: NextPage = () => {
   const [todoList, setTodoList] = useState<Todo[]>([]);
   const [checkedTodosList, setCheckedTodosList] = useState<Todo[]>([]);
   const [favoriteTodosList, setFavoriteTodosList] = useState<Todo[]>([]);
+
   const [toggleFavorites, setToggleFavorites] = useState<boolean>(false);
 
   const authContent = (
     <div className="flex flex-col items-center justify-center py-48 ">
       <button
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white transition-colors hover:bg-white/20"
         onClick={sessionData ? () => signOut() : () => signIn()}
       >
         {sessionData ? "Sign out" : "Sign in"}
@@ -37,8 +38,8 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div id="overlays" />
-      <div className="bg-gradient-to-b from-[#3e0094] to-[#15162c] text-white">
-        <div className="mx-auto min-h-screen max-w-5xl p-2 ">
+      <div className="bg-gradient-to-b from-[#4601a7] to-[#090a16] text-white">
+        <div className="mx-auto min-h-screen max-w-5xl">
           <Header
             setTodoList={setTodoList}
             setToggleFavorites={setToggleFavorites}
@@ -49,6 +50,7 @@ const Home: NextPage = () => {
             setTodoList={setTodoList}
             setCheckedTodosList={setCheckedTodosList}
             setFavoriteTodosList={setFavoriteTodosList}
+            toggleFavorites={toggleFavorites}
             todoList={toggleFavorites ? favoriteTodosList : todoList}
             checkedTodosList={checkedTodosList}
             favoriteTodosList={favoriteTodosList}
