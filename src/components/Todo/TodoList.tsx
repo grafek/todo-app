@@ -10,6 +10,7 @@ type TodoListProps = {
   setTodoList: Dispatch<SetStateAction<Todo[]>>;
   setCheckedTodosList: Dispatch<SetStateAction<Todo[]>>;
   setFavoriteTodosList: Dispatch<SetStateAction<Todo[]>>;
+  toggleFavorites: boolean;
   todoList: Todo[];
   checkedTodosList: Todo[];
   favoriteTodosList: Todo[];
@@ -20,9 +21,12 @@ function TodoList({
   todoList,
   setCheckedTodosList,
   setFavoriteTodosList,
+  toggleFavorites,
   checkedTodosList,
   favoriteTodosList,
 }: TodoListProps) {
+  const todosCtx = trpc.useContext();
+
   const { isLoading, isError, error } = trpc.todo.getAll.useQuery(undefined, {
     onSuccess(todos) {
       setTodoList(todos);
@@ -38,15 +42,43 @@ function TodoList({
   if (!sessionData) return null;
 
   let todosContent;
-  if (isError) {
-    return (todosContent = <span>Error: {error?.message}</span>);
+
+  if (isLoading) {
+    return <LoadingDots />;
   }
+
+  if (isError) {
+    return (todosContent = (
+      <span className="text-center">Error: {error?.message}</span>
+    ));
+  }
+  if (todoList.length < 1 && !toggleFavorites) {
+    return (todosContent = (
+      <p className="p-12 text-center">
+        No TODOS found! <br /> Add some by clicking {"+"} sign in top right
+        corner 🙂
+      </p>
+    ));
+  }
+
+  if (toggleFavorites && todoList.length < 1) {
+    return (todosContent = (
+      <p className="p-12 text-center">
+        No favorites found!
+        <br /> Add some by un-checking favorites filter and click on the star
+        button next to a TODO 🙂
+      </p>
+    ));
+  }
+
+  const cancelFetching = todosCtx.todo.getAll.cancel();
 
   if (todoList && todoList.length > 0) {
     todosContent = todoList.map((todo) => {
       return (
         <TodoItem
           setTodoList={setTodoList}
+          cancelFetching={cancelFetching}
           todo={todo}
           key={todo.id}
           id={todo.id}
@@ -65,13 +97,9 @@ function TodoList({
 
   return (
     <div className="p-2">
-      {isLoading ? (
-        <LoadingDots />
-      ) : (
-        <ul className="flex flex-col gap-2">
-          <AnimatePresence mode="sync">{todosContent}</AnimatePresence>
-        </ul>
-      )}
+      <ul className="flex flex-col gap-2">
+        <AnimatePresence mode="sync">{todosContent}</AnimatePresence>
+      </ul>
     </div>
   );
 }

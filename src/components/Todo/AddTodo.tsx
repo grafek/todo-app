@@ -15,7 +15,6 @@ function AddTodo({ setTodoList, setFavoriteTodosList }: TodoListProps) {
 
   const { mutate, isLoading, isSuccess, error } = trpc.todo.add.useMutation({
     onSuccess(todo) {
-      console.log(todo);
       setTodoList((prev) => [todo, ...prev]);
       if (todo.isFavorite) {
         setFavoriteTodosList((prev) => [todo, ...prev]);
@@ -25,22 +24,25 @@ function AddTodo({ setTodoList, setFavoriteTodosList }: TodoListProps) {
 
   const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log({ todoContent, isTodoFavorite });
     mutate({ content: todoContent, isFavorite: isTodoFavorite });
+    setTodoContent("");
+    setIsTodoFavorite(false);
   };
 
   let feedbackContent;
 
   if (error?.data?.zodError) {
     feedbackContent = (
-      <p className="text-center text-red-600">
+      <p className="text-center font-semibold text-red-600">
         {error.data.zodError.fieldErrors.content}
       </p>
     );
   }
-  
+
   if (isSuccess) {
-    feedbackContent = <p className="text-center text-green-600">TODO added!</p>;
+    feedbackContent = (
+      <p className="text-center font-semibold text-green-600">TODO added!</p>
+    );
   }
 
   return isLoading ? (
@@ -49,7 +51,7 @@ function AddTodo({ setTodoList, setFavoriteTodosList }: TodoListProps) {
     <form onSubmit={onSubmitHandler} className="flex flex-1 flex-col gap-4 ">
       <textarea
         placeholder="Todo"
-        className="rounded-md bg-gray-300 p-2"
+        className="rounded-md bg-gray-100 p-2 outline-none"
         onChange={(e) => {
           setTodoContent(e.target.value);
         }}

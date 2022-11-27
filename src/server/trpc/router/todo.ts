@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../trpc";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
 
 export const todoRouter = router({
   add: protectedProcedure
@@ -59,6 +59,9 @@ export const todoRouter = router({
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.todo.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
       orderBy: {
         createdAt: "desc",
       },

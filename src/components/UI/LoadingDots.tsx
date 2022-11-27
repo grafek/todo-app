@@ -1,18 +1,19 @@
+import type { Transition } from "framer-motion";
 import { motion } from "framer-motion";
 
-const ContainerVariants = {
+const containerVariants = {
   initial: {
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.1,
     },
   },
   animate: {
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.1,
     },
   },
 };
-const dotClasses = "block h-2 w-2 rounded-full bg-gray-700";
+const dotClasses = "block h-2 w-2 rounded-full bg-black/80";
 
 const dotVariants = {
   initial: {
@@ -23,25 +24,19 @@ const dotVariants = {
   },
 };
 
-const dotTransition = {
-  duration: 0.5,
+const dotTransition: Transition = {
+  duration: 0.3,
   repeat: Infinity,
+  repeatType: "mirror",
   ease: "easeInOut",
 };
 
 export default function LoadingDots() {
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <div className="flex w-full items-center justify-center">
       <motion.div
         className="flex h-7 w-12 justify-around"
-        variants={ContainerVariants}
+        variants={containerVariants}
         initial="initial"
         animate="animate"
       >
