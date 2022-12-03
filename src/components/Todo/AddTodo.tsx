@@ -1,32 +1,29 @@
 import { useState } from "react";
 import { trpc } from "../../utils/trpc";
-import type { Todo } from "@prisma/client";
-import type { Dispatch, SetStateAction } from "react";
 import { LoadingDots } from "../UI";
-type TodoListProps = {
-  setTodoList: Dispatch<SetStateAction<Todo[]>>;
-  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  setFavoriteTodosList: Dispatch<SetStateAction<Todo[]>>;
-};
 
-function AddTodo({ setTodoList, setFavoriteTodosList }: TodoListProps) {
+function AddTodo() {
   const [todoContent, setTodoContent] = useState<string>("");
   const [isTodoFavorite, setIsTodoFavorite] = useState<boolean>(false);
 
-  const { mutate, isLoading, isSuccess, error } = trpc.todo.add.useMutation({
-    onSuccess(todo) {
-      setTodoList((prev) => [todo, ...prev]);
-      if (todo.isFavorite) {
-        setFavoriteTodosList((prev) => [todo, ...prev]);
-      }
+  const utils = trpc.useContext();
+
+  const {
+    mutate: addTodo,
+    isLoading,
+    isSuccess,
+    error,
+  } = trpc.todo.add.useMutation({
+    onSuccess() {
+      setTodoContent("");
+      setIsTodoFavorite(false);
+      utils.todo.getAll.invalidate();
     },
   });
 
-  const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutate({ content: todoContent, isFavorite: isTodoFavorite });
-    setTodoContent("");
-    setIsTodoFavorite(false);
+    addTodo({ content: todoContent, isFavorite: isTodoFavorite });
   };
 
   let feedbackContent;
@@ -48,7 +45,7 @@ function AddTodo({ setTodoList, setFavoriteTodosList }: TodoListProps) {
   return isLoading ? (
     <LoadingDots />
   ) : (
-    <form onSubmit={onSubmitHandler} className="flex flex-1 flex-col gap-4 ">
+    <form onSubmit={submitHandler} className="flex flex-1 flex-col gap-4 ">
       <textarea
         placeholder="Todo"
         className="rounded-md bg-gray-100 p-2 outline-none"
