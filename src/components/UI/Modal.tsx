@@ -33,13 +33,13 @@ function Modal({ setIsOpen, isOpen, children, actionTitle }: ModalProps) {
           onClick={() => {
             setIsOpen(false);
           }}
-          className="absolute inset-0 top-0 left-0  z-20  flex h-screen w-full  items-center justify-center bg-black/50"
+          className="fixed z-20 flex h-full w-full items-center justify-center bg-black/50"
         >
           <motion.div
-            initial={{ scale: 0.4, opacity: 0, y: "50vh" }}
+            initial={{ scale: 0.4, opacity: 0 }}
             transition={{ duration: 0.8, type: "spring" }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "50vh", scale: 0.4 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.4 }}
             id="modal"
             onClick={(e) => e.stopPropagation()}
             className="fixed z-40 flex min-h-[150px] w-3/4 max-w-xl flex-1 flex-col gap-8 rounded-md  bg-[#e1e1f8e7] p-3 text-black "

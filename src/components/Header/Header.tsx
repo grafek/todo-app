@@ -1,25 +1,17 @@
+import type { Dispatch, SetStateAction } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
-import type { Todo } from "@prisma/client";
-import type { Dispatch, SetStateAction } from "react";
 import { AiOutlinePlus, AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { getFirstNameFromSession } from "../../utils/getFirstName";
 import { Modal } from "../UI";
 import AddTodo from "../Todo/AddTodo";
 
-type TodoListProps = {
-  setFavoriteTodosList: Dispatch<SetStateAction<Todo[]>>;
-  setTodoList: Dispatch<SetStateAction<Todo[]>>;
-  setToggleFavorites: Dispatch<SetStateAction<boolean>>;
-  toggleFavorites: boolean;
+type HeaderPorps = {
+  setFilterFavorites: Dispatch<SetStateAction<boolean>>;
+  filterFavorites: boolean;
 };
 
-function Header({
-  setTodoList,
-  setFavoriteTodosList,
-  setToggleFavorites: setToggleFavorites,
-  toggleFavorites,
-}: TodoListProps) {
+function Header({ setFilterFavorites, filterFavorites }: HeaderPorps) {
   const { data: sessionData } = useSession();
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -31,7 +23,7 @@ function Header({
     <span>
       👋 Hi,{" "}
       <a
-        className="font-semibold italic underline cursor-pointer
+        className="cursor-pointer font-semibold italic underline
         "
         onClick={() => {
           signIn();
@@ -47,19 +39,26 @@ function Header({
     <div className="flex gap-4">
       <button
         onClick={() => {
-          setToggleFavorites((prev) => !prev);
+          setFilterFavorites((prev) => !prev);
         }}
       >
-        {toggleFavorites ? (
-          <AiFillStar className="text-xl text-yellow-300 md:text-2xl" />
+        {filterFavorites ? (
+          <AiFillStar
+            className="text-xl text-yellow-300 md:text-2xl"
+            title="Show all todos"
+          />
         ) : (
-          <AiOutlineStar className="text-xl md:text-2xl" />
+          <AiOutlineStar
+            className="text-xl md:text-2xl"
+            title="Filter favorite todos"
+          />
         )}
       </button>
 
       <button>
         <AiOutlinePlus
           className="text-2xl"
+          title="Add a TODO"
           onClick={() => {
             setIsModalOpen(true);
           }}
@@ -70,16 +69,12 @@ function Header({
         actionTitle="Add TODO"
         setIsOpen={setIsModalOpen}
       >
-        <AddTodo
-          setTodoList={setTodoList}
-          setIsModalOpen={setIsModalOpen}
-          setFavoriteTodosList={setFavoriteTodosList}
-        />
+        <AddTodo />
       </Modal>
     </div>
   ) : null;
   return (
-    <header className="mx-auto flex w-full justify-between pb-5 p-2">
+    <header className="mx-auto flex w-full justify-between p-2 pb-5">
       <button>Logo</button>
       <p className="max-w-[160px] text-center sm:max-w-none">
         {welcomeMessage}

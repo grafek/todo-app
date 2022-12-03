@@ -1,11 +1,11 @@
 import type { Todo } from "@prisma/client";
-import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 import { AiOutlineClose, AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
 import { motion } from "framer-motion";
 import { trpc } from "../../utils/trpc";
 import { LoadingDots, Modal } from "../UI";
+import { TRPCError } from "@trpc/server";
 
 type TodoItemProps = {
   todo: Todo;
@@ -13,76 +13,87 @@ type TodoItemProps = {
   id: string;
   isFavorite: boolean;
   createdAt: Date;
-  setTodoList: Dispatch<SetStateAction<Todo[]>>;
-  setCheckedTodosList: Dispatch<SetStateAction<Todo[]>>;
-  setFavoriteTodosList: Dispatch<SetStateAction<Todo[]>>;
-  checkedTodosList: Todo[];
-  favoriteTodosList: Todo[];
-  todoList: Todo[];
-  cancelFetching: Promise<void>;
 };
 
-function TodoItem({
-  cancelFetching,
-  todo,
-  content,
-  createdAt,
-  id,
-  setFavoriteTodosList,
-  favoriteTodosList,
-  setCheckedTodosList,
-  checkedTodosList,
-  setTodoList,
-}: TodoItemProps) {
+function TodoItem({ todo, content, createdAt, id }: TodoItemProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const { mutate: deleteTodo, isLoading } = trpc.todo.delete.useMutation({
-    onSuccess(todo) {
-      setTodoList((prev) => prev.filter((item) => item.id !== todo.id));
-      setFavoriteTodosList((prev) =>
-        prev.filter((item) => item.id !== todo.id)
-      );
+  const utils = trpc.useContext();
+
+  const { mutateAsync: deleteTodo, isLoading } = trpc.todo.delete.useMutation({
+    async onMutate({ id }) {
+      await utils.todo.getAll.cancel();
+
+      const prevData = utils.todo.getAll.getData();
+
+      utils.todo.getAll.setData((old) => old?.filter((todo) => todo.id !== id));
+
       setIsModalOpen(false);
+      return { prevData };
+    },
+    onSettled() {
+      utils.todo.getAll.invalidate();
+    },
+    onError(err, deletedTodo, ctx) {
+      utils.todo.getAll.setData(ctx?.prevData);
+      throw new TRPCError({
+        message: JSON.stringify(err),
+        code: "INTERNAL_SERVER_ERROR",
+      });
     },
   });
 
-  const { mutate: toggleChecked } = trpc.todo.toggleChecked.useMutation();
-  const { mutate: toggleFavorites } = trpc.todo.toggleFavorite.useMutation();
+  const { mutate: toggleChecked } = trpc.todo.toggleChecked.useMutation({
+    async onMutate({ id, isChecked }) {
+      await utils.todo.getAll.cancel();
 
-  const optimisticCheckTodos = async () => {
-    if (checkedTodosList.some((item) => item.id === todo.id)) {
-      setCheckedTodosList((prev) => prev.filter((item) => item.id !== todo.id));
-    } else {
-      setCheckedTodosList((prev) => [...prev, todo]);
-    }
-    await cancelFetching;
-    toggleChecked({
-      id,
-      isChecked: checkedTodosList.some((todo) => todo.id === id) ? false : true,
-    });
-  };
+      const prevData = utils.todo.getAll.getData();
 
-  const optimisticFavoriteTodos = async () => {
-    if (favoriteTodosList.some((item) => item.id === todo.id)) {
-      await cancelFetching;
-      setFavoriteTodosList((prev) =>
-        prev.filter((item) => item.id !== todo.id)
-        );
-    } else {
-      await cancelFetching;
-      setFavoriteTodosList((prev) =>
-        [...prev, todo].sort(
-          (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-        )
-      );
-    }
-    toggleFavorites({
-      id,
-      isFavorite: favoriteTodosList.some((todo) => todo.id === id)
-        ? false
-        : true,
-    });
-  };
+      utils.todo.getAll.setData((old): Todo[] => {
+        const selectedTodo = old?.find((todo: Todo) => todo.id === id);
+        selectedTodo ? (selectedTodo.isChecked = isChecked) : null;
+        return old ? old : [];
+      });
+
+      return { prevData };
+    },
+    onSettled() {
+      utils.todo.getAll.invalidate();
+    },
+  });
+
+  const { mutate: toggleFavorite } = trpc.todo.toggleFavorite.useMutation({
+    async onMutate({ id, isFavorite }) {
+      await utils.todo.getAll.cancel();
+
+      const prevData = utils.todo.getAll.getData();
+
+      utils.todo.getAll.setData((old): Todo[] => {
+        const selectedTodo = old?.find((todo: Todo) => todo.id === id);
+        selectedTodo ? (selectedTodo.isFavorite = isFavorite) : null;
+        return old ? old : [];
+      });
+
+      return { prevData };
+    },
+    onSettled() {
+      utils.todo.getAll.invalidate();
+    },
+  });
+
+  const isChecked = todo.isChecked ? false : true;
+  const isFavorite = todo.isFavorite ? false : true;
+
+  const timestampContent = (
+    <span className="absolute bottom-[2px] right-2  text-[13px] font-thin italic text-black ">
+      created at: {createdAt.getHours()}:
+      {createdAt.getUTCMinutes() < 10
+        ? "0" + createdAt.getUTCMinutes()
+        : createdAt.getUTCMinutes()}{" "}
+      | {createdAt.getDate()}-{createdAt.getMonth() + 1}-
+      {createdAt.getFullYear()}
+    </span>
+  );
 
   return (
     <motion.li
@@ -94,50 +105,64 @@ function TodoItem({
       id={id}
       className={`${
         isModalOpen ? "bg-red-400 " : "bg-indigo-400 "
-      } relative flex items-center justify-between rounded-md p-4 transition-colors duration-300 md:py-6`}
+      } md:overflow-none relative flex items-center justify-between overflow-auto rounded-md p-4 transition-colors duration-300 md:py-6`}
     >
       <span className="relative">
         {content}
-        <div className="pointer-events-none absolute inset-0 flex origin-left items-center">
+        <div className="pointer-events-none absolute inset-0 flex origin-left items-center ">
           <motion.div
             initial={{ width: 0 }}
             animate={{
-              width: checkedTodosList.some((todo) => todo.id === id)
-                ? "100%"
-                : 0,
+              width: !isChecked ? "100%" : 0,
             }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="h-[3px] w-full translate-y-px bg-red-500"
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="h-[3px] w-full translate-y-px  bg-red-500"
           />
         </div>
       </span>
-      <span className="relative flex gap-2">
-        <button onClick={optimisticCheckTodos}>
-          <MdDone className="text-xl text-green-400 md:text-2xl" />
-        </button>
-        <button onClick={optimisticFavoriteTodos}>
-          {favoriteTodosList.some((todo) => todo.id === id) ? (
-            <AiFillStar className="text-xl text-yellow-300 md:text-2xl" />
+      <span className="flex gap-2">
+        <button
+          onClick={() => {
+            toggleChecked({ id, isChecked });
+          }}
+        >
+          {!isChecked ? (
+            <MdDone
+              className="text-xl  text-green-400 md:text-2xl"
+              title="Mark as unfinished"
+            />
           ) : (
-            <AiOutlineStar className="text-xl md:text-2xl" />
+            <MdDone className="text-xl md:text-2xl" title="Mark as done" />
+          )}
+        </button>
+        <button
+          onClick={() => {
+            toggleFavorite({ id, isFavorite });
+          }}
+        >
+          {isFavorite ? (
+            <AiOutlineStar
+              className="text-xl md:text-2xl"
+              title="Add to favorites"
+            />
+          ) : (
+            <AiFillStar
+              className="text-xl text-yellow-300 md:text-2xl"
+              title="Remove from favorites"
+            />
           )}
         </button>
         <button>
           <AiOutlineClose
             className="text-xl text-red-600 md:text-2xl"
+            title="Remove TODO"
             onClick={() => {
               setIsModalOpen(true);
             }}
           />
         </button>
       </span>
-      <span className="absolute bottom-[2px] right-2  text-[12px] font-thin italic text-gray-200/70 ">
-        created at: {createdAt.getHours()}:
-        {createdAt.getUTCMinutes() < 10
-          ? "0" + createdAt.getUTCMinutes()
-          : createdAt.getUTCMinutes()}{" "}
-        | {createdAt.getDate()}-{createdAt.getMonth()}-{createdAt.getFullYear()}
-      </span>
+      {timestampContent}
       <Modal
         isOpen={isModalOpen}
         actionTitle="Remove TODO"

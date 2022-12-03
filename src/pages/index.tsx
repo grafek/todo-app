@@ -2,19 +2,12 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
-
 import TodoList from "../components/Todo/TodoList";
 import Header from "../components/Header/Header";
-import type { Todo } from "@prisma/client";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
-
-  const [todoList, setTodoList] = useState<Todo[]>([]);
-  const [checkedTodosList, setCheckedTodosList] = useState<Todo[]>([]);
-  const [favoriteTodosList, setFavoriteTodosList] = useState<Todo[]>([]);
-
-  const [toggleFavorites, setToggleFavorites] = useState<boolean>(false);
+  const [filterFavorites, setFilterFavorites] = useState<boolean>(false);
 
   const authContent = (
     <div className="flex flex-col items-center justify-center py-48 ">
@@ -41,20 +34,10 @@ const Home: NextPage = () => {
       <div className="bg-gradient-to-b from-[#4601a7] to-[#090a16] text-white">
         <div className="mx-auto min-h-screen max-w-5xl">
           <Header
-            setTodoList={setTodoList}
-            setToggleFavorites={setToggleFavorites}
-            toggleFavorites={toggleFavorites}
-            setFavoriteTodosList={setFavoriteTodosList}
+            setFilterFavorites={setFilterFavorites}
+            filterFavorites={filterFavorites}
           />
-          <TodoList
-            setTodoList={setTodoList}
-            setCheckedTodosList={setCheckedTodosList}
-            setFavoriteTodosList={setFavoriteTodosList}
-            toggleFavorites={toggleFavorites}
-            todoList={toggleFavorites ? favoriteTodosList : todoList}
-            checkedTodosList={checkedTodosList}
-            favoriteTodosList={favoriteTodosList}
-          />
+          <TodoList filterFavorites={filterFavorites} />
           {authContent}
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure, publicProcedure, router } from "../trpc";
+import { protectedProcedure, router } from "../trpc";
 
 export const todoRouter = router({
   add: protectedProcedure
@@ -7,18 +7,24 @@ export const todoRouter = router({
       z.object({
         content: z
           .string()
+          .trim()
           .min(1, { message: "TODO must be 1 or more characters long" }),
         isFavorite: z.boolean(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.todo.create({
+      const { session, prisma } = ctx;
+      const { content, isFavorite } = input;
+
+      const addedTodo = await prisma.todo.create({
         data: {
-          content: input.content,
-          userId: ctx.session.user.id,
-          isFavorite: input.isFavorite,
+          content,
+          isFavorite,
+          userId: session.user.id,
         },
       });
+
+      return addedTodo;
     }),
   delete: protectedProcedure
     .input(
@@ -27,44 +33,63 @@ export const todoRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.todo.delete({
+      const { prisma } = ctx;
+      const { id } = input;
+
+      const deletedTodo = await prisma.todo.delete({
         where: {
-          id: input.id,
+          id,
         },
       });
+
+      return deletedTodo;
     }),
   toggleFavorite: protectedProcedure
     .input(z.object({ id: z.string(), isFavorite: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.todo.update({
+      const { prisma } = ctx;
+      const { id, isFavorite } = input;
+
+      const toggledFavorite = await prisma.todo.update({
         where: {
-          id: input.id,
+          id,
         },
         data: {
-          isFavorite: input.isFavorite,
+          isFavorite,
         },
       });
+
+      return toggledFavorite;
     }),
   toggleChecked: protectedProcedure
     .input(z.object({ id: z.string(), isChecked: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.todo.update({
+      const { prisma } = ctx;
+      const { id, isChecked } = input;
+
+      const toggledChecked = await prisma.todo.update({
         where: {
-          id: input.id,
+          id,
         },
         data: {
-          isChecked: input.isChecked,
+          isChecked,
         },
       });
+
+      return toggledChecked;
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.todo.findMany({
+    const { prisma, session } = ctx;
+
+    const todos = await prisma.todo.findMany({
       where: {
-        userId: ctx.session.user.id,
+        userId: session.user.id,
       },
       orderBy: {
         createdAt: "desc",
       },
     });
+
+    return todos;
   }),
 });
