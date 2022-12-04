@@ -18,7 +18,7 @@ function TodoList({ filterFavorites }: TodoListProps) {
     return todo.isFavorite;
   });
 
-  if (!sessionData) return null;
+  if (!sessionData?.user?.id) return null;
 
   let todosContent;
 
@@ -45,25 +45,21 @@ function TodoList({ filterFavorites }: TodoListProps) {
     todosContent = favoriteTodos.map((todo: Todo) => {
       return (
         <TodoItem
-          todo={todo}
-          key={todo.id}
+          key={`${sessionData?.user?.id}/${todo.content.slice(0, 10)}...`}
+          // clientside key data to not refetch after obtaining id from server when...
+          // ... setting todo.id as key
           id={todo.id}
-          content={todo.content}
-          createdAt={todo.createdAt}
-          isFavorite={todo.isFavorite}
+          todo={todo}
         />
       );
     });
   } else
-    todosContent = data.map((todo: Todo, i) => {
+    todosContent = data.map((todo: Todo) => {
       return (
         <TodoItem
-          todo={todo}
-          key={todo.id || i}
+          key={`${sessionData?.user?.id}/${todo.content.slice(0, 10)}...`}
           id={todo.id}
-          content={todo.content}
-          createdAt={todo.createdAt}
-          isFavorite={todo.isFavorite}
+          todo={todo}
         />
       );
     });

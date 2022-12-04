@@ -36,7 +36,7 @@ function Header({ setFilterFavorites, filterFavorites }: HeaderPorps) {
   );
 
   const loggedInContent = sessionData ? (
-    <div className="flex gap-4">
+    <div className="hidden gap-4 md:flex">
       <button
         onClick={() => {
           setFilterFavorites((prev) => !prev);
@@ -57,7 +57,7 @@ function Header({ setFilterFavorites, filterFavorites }: HeaderPorps) {
 
       <button>
         <AiOutlinePlus
-          className="text-2xl"
+          className="text-xl md:text-3xl"
           title="Add a TODO"
           onClick={() => {
             setIsModalOpen(true);
@@ -69,7 +69,7 @@ function Header({ setFilterFavorites, filterFavorites }: HeaderPorps) {
         actionTitle="Add TODO"
         setIsOpen={setIsModalOpen}
       >
-        <AddTodo />
+        <AddTodo setIsOpen={setIsModalOpen} />
       </Modal>
     </div>
   ) : null;
