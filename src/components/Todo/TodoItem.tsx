@@ -8,14 +8,11 @@ import { LoadingDots, Modal } from "../UI";
 import { TRPCError } from "@trpc/server";
 
 type TodoItemProps = {
-  todo: Todo;
-  content: string;
   id: string;
-  isFavorite: boolean;
-  createdAt: Date;
+  todo: Todo;
 };
 
-function TodoItem({ todo, content, createdAt, id }: TodoItemProps) {
+function TodoItem({ todo, id }: TodoItemProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const utils = trpc.useContext();
@@ -86,12 +83,12 @@ function TodoItem({ todo, content, createdAt, id }: TodoItemProps) {
 
   const timestampContent = (
     <span className="absolute bottom-[2px] right-2  text-[13px] font-thin italic text-black ">
-      created at: {createdAt.getHours()}:
-      {createdAt.getUTCMinutes() < 10
-        ? "0" + createdAt.getUTCMinutes()
-        : createdAt.getUTCMinutes()}{" "}
-      | {createdAt.getDate()}-{createdAt.getMonth() + 1}-
-      {createdAt.getFullYear()}
+      created at: {todo.createdAt.getHours()}:
+      {todo.createdAt.getUTCMinutes() < 10
+        ? "0" + todo.createdAt.getUTCMinutes()
+        : todo.createdAt.getUTCMinutes()}{" "}
+      | {todo.createdAt.getDate()}-{todo.createdAt.getMonth() + 1}-
+      {todo.createdAt.getFullYear()}
     </span>
   );
 
@@ -102,24 +99,11 @@ function TodoItem({ todo, content, createdAt, id }: TodoItemProps) {
       animate={{ scale: 1, y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
       exit={{ scale: 0.7, opacity: 0 }}
-      id={id}
-      className={`${
-        isModalOpen ? "bg-red-400 " : "bg-indigo-400 "
-      } md:overflow-none relative flex items-center justify-between overflow-auto rounded-md p-4 transition-colors duration-300 md:py-6`}
+      className={`${isModalOpen ? "bg-red-400 " : "bg-indigo-400 "} ${
+        !isChecked ? "line-through decoration-red-600 decoration-[3px]" : ""
+      } md:overflow-none relative flex items-center justify-between overflow-y-scroll rounded-md p-4 transition-colors duration-300 md:py-6`}
     >
-      <span className="relative">
-        {content}
-        <div className="pointer-events-none absolute inset-0 flex origin-left items-center ">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{
-              width: !isChecked ? "100%" : 0,
-            }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="h-[3px] w-full translate-y-px  bg-red-500"
-          />
-        </div>
-      </span>
+      <span className="relative">{todo.content}</span>
       <span className="flex gap-2">
         <button
           onClick={() => {

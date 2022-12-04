@@ -1,31 +1,22 @@
 import { z } from "zod";
+import { todoSchema } from "../../../schemas/todo.schema";
 import { protectedProcedure, router } from "../trpc";
 
 export const todoRouter = router({
-  add: protectedProcedure
-    .input(
-      z.object({
-        content: z
-          .string()
-          .trim()
-          .min(1, { message: "TODO must be 1 or more characters long" }),
-        isFavorite: z.boolean(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { session, prisma } = ctx;
-      const { content, isFavorite } = input;
+  add: protectedProcedure.input(todoSchema).mutation(async ({ ctx, input }) => {
+    const { session, prisma } = ctx;
+    const { content, isFavorite } = input;
 
-      const addedTodo = await prisma.todo.create({
-        data: {
-          content,
-          isFavorite,
-          userId: session.user.id,
-        },
-      });
+    const addedTodo = await prisma.todo.create({
+      data: {
+        content,
+        isFavorite,
+        userId: session.user.id,
+      },
+    });
 
-      return addedTodo;
-    }),
+    return addedTodo;
+  }),
   delete: protectedProcedure
     .input(
       z.object({
