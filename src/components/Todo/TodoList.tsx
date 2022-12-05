@@ -46,8 +46,8 @@ function TodoList({ filterFavorites }: TodoListProps) {
       return (
         <TodoItem
           key={`${todo.userId}/${todo.content.slice(0, 10)}/${
-            todo.createdAt
-          }...`}
+            sessionData.expires
+          }`}
           // clientside key data to not refetch after obtaining id from server when...
           // ... setting todo.id as key with optimistic update
           id={todo.id}
@@ -60,8 +60,8 @@ function TodoList({ filterFavorites }: TodoListProps) {
       return (
         <TodoItem
           key={`${todo.userId}/${todo.content.slice(0, 10)}/${
-            todo.createdAt
-          }...`}
+            sessionData.expires
+          }`}
           id={todo.id}
           todo={todo}
         />
