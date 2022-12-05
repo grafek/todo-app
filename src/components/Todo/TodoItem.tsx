@@ -101,7 +101,7 @@ function TodoItem({ todo, id }: TodoItemProps) {
       exit={{ scale: 0.7, opacity: 0 }}
       className={`${isModalOpen ? "bg-red-400 " : "bg-indigo-400 "} ${
         !isChecked ? "line-through decoration-red-600 decoration-[3px]" : ""
-      } md:overflow-none relative flex items-center justify-between overflow-y-scroll rounded-md p-4 transition-colors duration-300 md:py-6`}
+      } relative flex items-center justify-between rounded-md p-4 transition-colors duration-300 md:py-6`}
     >
       <span className="relative">{todo.content}</span>
       <span className="flex gap-2">
@@ -141,31 +141,32 @@ function TodoItem({ todo, id }: TodoItemProps) {
             className="text-xl text-red-600 md:text-2xl"
             title="Remove TODO"
             onClick={() => {
-              setIsModalOpen(true);
+              if (id.length > 10) {
+                setIsModalOpen(true);
+              }
             }}
           />
         </button>
       </span>
       {timestampContent}
-      {id.length > 10 ? (
-        <Modal
-          isOpen={isModalOpen}
-          actionTitle="Remove TODO"
-          setIsOpen={setIsModalOpen}
-        >
-          <>
-            <p>Are you sure you want to remove this TODO?</p>
-            <button
-              className="m-auto w-1/3 min-w-[100px] rounded-md bg-red-500 px-4 py-2 text-white"
-              onClick={() => {
-                deleteTodo({ id });
-              }}
-            >
-              Confirm
-            </button>
-          </>
-        </Modal>
-      ) : null}
+
+      <Modal
+        isOpen={isModalOpen}
+        actionTitle="Remove TODO"
+        setIsOpen={setIsModalOpen}
+      >
+        <>
+          <p>Are you sure you want to remove this TODO?</p>
+          <button
+            className="m-auto w-1/3 min-w-[100px] rounded-md bg-red-500 px-4 py-2 text-white"
+            onClick={() => {
+              deleteTodo({ id });
+            }}
+          >
+            Confirm
+          </button>
+        </>
+      </Modal>
     </motion.li>
   );
 }
