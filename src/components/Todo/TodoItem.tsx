@@ -4,7 +4,7 @@ import { AiOutlineClose, AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
 import { motion } from "framer-motion";
 import { trpc } from "../../utils/trpc";
-import { LoadingDots, Modal } from "../UI";
+import { Modal } from "../UI";
 import { TRPCError } from "@trpc/server";
 
 type TodoItemProps = {
@@ -17,7 +17,7 @@ function TodoItem({ todo, id }: TodoItemProps) {
 
   const utils = trpc.useContext();
 
-  const { mutateAsync: deleteTodo, isLoading } = trpc.todo.delete.useMutation({
+  const { mutateAsync: deleteTodo } = trpc.todo.delete.useMutation({
     async onMutate({ id }) {
       await utils.todo.getAll.cancel();
 
@@ -147,14 +147,12 @@ function TodoItem({ todo, id }: TodoItemProps) {
         </button>
       </span>
       {timestampContent}
-      <Modal
-        isOpen={isModalOpen}
-        actionTitle="Remove TODO"
-        setIsOpen={setIsModalOpen}
-      >
-        {isLoading ? (
-          <LoadingDots />
-        ) : (
+      {id.length > 10 ? (
+        <Modal
+          isOpen={isModalOpen}
+          actionTitle="Remove TODO"
+          setIsOpen={setIsModalOpen}
+        >
           <>
             <p>Are you sure you want to remove this TODO?</p>
             <button
@@ -166,8 +164,8 @@ function TodoItem({ todo, id }: TodoItemProps) {
               Confirm
             </button>
           </>
-        )}
-      </Modal>
+        </Modal>
+      ) : null}
     </motion.li>
   );
 }
