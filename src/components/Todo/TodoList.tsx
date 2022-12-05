@@ -45,9 +45,11 @@ function TodoList({ filterFavorites }: TodoListProps) {
     todosContent = favoriteTodos.map((todo: Todo) => {
       return (
         <TodoItem
-          key={`${sessionData?.user?.id}/${todo.content.slice(0, 10)}...`}
+          key={`${todo.userId}/${todo.content.slice(0, 10)}/${
+            todo.createdAt
+          }...`}
           // clientside key data to not refetch after obtaining id from server when...
-          // ... setting todo.id as key
+          // ... setting todo.id as key with optimistic update
           id={todo.id}
           todo={todo}
         />
@@ -57,7 +59,9 @@ function TodoList({ filterFavorites }: TodoListProps) {
     todosContent = data.map((todo: Todo) => {
       return (
         <TodoItem
-          key={`${sessionData?.user?.id}/${todo.content.slice(0, 10)}...`}
+          key={`${todo.userId}/${todo.content.slice(0, 10)}/${
+            todo.createdAt
+          }...`}
           id={todo.id}
           todo={todo}
         />
