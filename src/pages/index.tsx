@@ -1,24 +1,13 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
 import TodoList from "../components/Todo/TodoList";
 import Header from "../components/Header/Header";
+import { Navigation } from "../components/Navigation/Navigation";
 
 const Home: NextPage = () => {
-  const { data: sessionData } = useSession();
   const [filterFavorites, setFilterFavorites] = useState<boolean>(false);
-
-  const authContent = (
-    <div className="flex flex-col items-center justify-center py-48 ">
-      <button
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white transition-colors hover:bg-white/20"
-        onClick={sessionData ? () => signOut() : () => signIn()}
-      >
-        {sessionData ? "Sign out" : "Sign in"}
-      </button>
-    </div>
-  );
+  const [filterChecked, setFilterChecked] = useState<boolean>(false);
 
   return (
     <>
@@ -31,14 +20,20 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div id="overlays" />
-      <div className="bg-gradient-to-b from-[#4601a7] to-[#090a16] text-white">
+      <div className="bg-gradient-to-b from-[#224b7c] to-[#08183b] pb-20 text-white">
         <div className="mx-auto min-h-screen max-w-5xl">
-          <Header
-            setFilterFavorites={setFilterFavorites}
+          <Header>
+            <Navigation
+              setFilterFavorites={setFilterFavorites}
+              filterFavorites={filterFavorites}
+              filterChecked={filterChecked}
+              setFilterChecked={setFilterChecked}
+            />
+          </Header>
+          <TodoList
             filterFavorites={filterFavorites}
+            filterChecked={filterChecked}
           />
-          <TodoList filterFavorites={filterFavorites} />
-          {authContent}
         </div>
       </div>
     </>

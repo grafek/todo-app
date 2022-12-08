@@ -92,6 +92,8 @@ function TodoItem({ todo, id }: TodoItemProps) {
     </span>
   );
 
+  const hasServerId = id.length > 10 ? true : false;
+
   return (
     <motion.li
       layout
@@ -99,7 +101,9 @@ function TodoItem({ todo, id }: TodoItemProps) {
       animate={{ scale: 1, y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
       exit={{ scale: 0.7, opacity: 0 }}
-      className={`${isModalOpen ? "bg-red-400 " : "bg-indigo-400 "} ${
+      className={`${
+        isModalOpen ? "bg-red-400 " : "bg-blue-400 odd:bg-blue-500"
+      } ${
         !isChecked ? "line-through decoration-red-600 decoration-[3px]" : ""
       } relative flex items-center justify-between rounded-md p-4 transition-colors duration-300 md:py-6`}
     >
@@ -138,10 +142,12 @@ function TodoItem({ todo, id }: TodoItemProps) {
         </button>
         <button>
           <AiOutlineClose
-            className="text-xl text-red-600 md:text-2xl"
+            className={`text-xl ${
+              hasServerId ? "text-red-600" : "text-white"
+            } transition-colors md:text-2xl`}
             title="Remove TODO"
             onClick={() => {
-              if (id.length > 10) {
+              if (hasServerId) {
                 setIsModalOpen(true);
               }
             }}
