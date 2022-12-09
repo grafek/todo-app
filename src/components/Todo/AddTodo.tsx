@@ -1,9 +1,8 @@
-import { useSession } from "next-auth/react";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
-import { trpc } from "../../utils/trpc";
 import { todoSchema } from "../../schemas/todo.schema";
 import { z } from "zod";
+import { useAddTodo } from "../../hooks";
 
 function AddTodo({
   setIsOpen,
@@ -14,41 +13,7 @@ function AddTodo({
   const [isTodoFavorite, setIsTodoFavorite] = useState<boolean>(false);
   const [error, setError] = useState("");
 
-  const { data: sessionData } = useSession();
-
-  const utils = trpc.useContext();
-
-  if (!sessionData?.user) return null;
-
-  let tempIds = 1;
-
-  const { mutateAsync: addTodo, isLoading } = trpc.todo.add.useMutation({
-    async onMutate(newTodo) {
-      setIsOpen(false);
-      await utils.todo.getAll.cancel();
-
-      utils.todo.getAll.setData(
-        (old) =>
-          old && sessionData.user
-            ? [
-                {
-                  ...newTodo,
-                  createdAt: new Date(),
-                  id: (tempIds++).toString(),
-                  userId: sessionData.user.id,
-                  isChecked: false,
-                  updatedAt: new Date(),
-                },
-                ...old,
-              ]
-            : []
-        //optimistic update with temporary clientside id
-      );
-    },
-    onSuccess() {
-      utils.todo.getAll.invalidate();
-    },
-  });
+  const { mutate: addTodo, isLoading } = useAddTodo();
 
   const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,6 +31,7 @@ function AddTodo({
       }
       return;
     }
+    setIsOpen(false);
     addTodo({ content: todoContent, isFavorite: isTodoFavorite });
   };
 
