@@ -23,7 +23,7 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
     return todo.isChecked;
   });
 
-  const checkedAndFavoriteTodos = data?.filter((todo, i) => {
+  const checkedAndFavoriteTodos = data?.filter((todo) => {
     if (todo.isChecked && todo.isFavorite) {
       return todo;
     }
@@ -61,7 +61,6 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
           }`}
           // clientside key data to not refetch after obtaining id from server when...
           // ... setting todo.id as key with optimistic update
-          id={todo.id}
           todo={todo}
         />
       );
@@ -73,7 +72,6 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
           key={`${todo.userId}/${todo.content.slice(0, 10)}/${
             sessionData.expires
           }`}
-          id={todo.id}
           todo={todo}
         />
       );
@@ -85,7 +83,6 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
           key={`${todo.userId}/${todo.content.slice(0, 10)}/${
             sessionData.expires
           }`}
-          id={todo.id}
           todo={todo}
         />
       );
@@ -97,7 +94,6 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
           key={`${todo.userId}/${todo.content.slice(0, 10)}/${
             sessionData.expires
           }`}
-          id={todo.id}
           todo={todo}
         />
       );

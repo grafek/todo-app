@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import { getFirstNameFromSession } from "../../utils/getFirstName";
+import { getFirstName } from "../../utils/";
 
 type HeaderPorps = {
   children: React.ReactNode;
@@ -8,7 +8,7 @@ type HeaderPorps = {
 function Header({ children: Navigation }: HeaderPorps) {
   const { data: sessionData } = useSession();
 
-  const firstName = getFirstNameFromSession(sessionData);
+  const firstName = getFirstName(sessionData);
   const welcomeMessage = firstName ? (
     <p className="max-w-[160px] text-center sm:max-w-none">
       👋 Hi, {firstName} !

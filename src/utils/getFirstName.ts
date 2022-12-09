@@ -1,6 +1,6 @@
 import type { Session } from "next-auth";
 
-export function getFirstNameFromSession(sessionData: Session | null) {
+function getFirstName(sessionData: Session | null) {
   if (sessionData) {
     const fullName = sessionData.user?.name?.split(" ");
     if (fullName) {
@@ -10,3 +10,5 @@ export function getFirstNameFromSession(sessionData: Session | null) {
   }
   return;
 }
+
+export default getFirstName;
