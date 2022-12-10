@@ -81,9 +81,17 @@ export function Navigation({
           </Modal>
           <button className={`border-l border-gray-700 pl-6`}>
             {sessionData ? (
-              <BiLogOut className="text-2xl" onClick={() => signOut()} />
+              <BiLogOut
+                title="Logout"
+                className="text-2xl"
+                onClick={() => signOut()}
+              />
             ) : (
-              <BiLogIn className="text-2xl" onClick={() => signIn()} />
+              <BiLogIn
+                title="Login"
+                className="text-2xl"
+                onClick={() => signIn()}
+              />
             )}
           </button>
         </>

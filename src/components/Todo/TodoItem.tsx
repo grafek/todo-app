@@ -45,7 +45,9 @@ function TodoItem({ todo }: TodoItemProps) {
       className={`${
         isModalOpen ? "bg-red-400 " : "bg-blue-400 odd:bg-blue-500"
       } ${
-        isChecked ? "line-through decoration-red-600 decoration-[3px]" : ""
+        isChecked
+          ? "italic line-through decoration-red-600/50 decoration-2"
+          : ""
       } relative flex items-center justify-between rounded-md p-4 transition-colors duration-300 md:py-6`}
     >
       <span className="relative">{content}</span>
