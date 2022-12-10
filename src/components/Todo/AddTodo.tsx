@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
-import { todoSchema } from "../../schemas/todo.schema";
+import { todoSchema, TODO_CONTENT_MAX_CHARS } from "../../schemas/todo.schema";
 import { z } from "zod";
 import { useAddTodo } from "../../hooks";
 
@@ -10,6 +10,7 @@ function AddTodo({
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const [todoContent, setTodoContent] = useState<string>("");
+  const [todoCharacters, setTodoCharacters] = useState<number>(0);
   const [isTodoFavorite, setIsTodoFavorite] = useState<boolean>(false);
   const [error, setError] = useState("");
 
@@ -40,11 +41,16 @@ function AddTodo({
       <textarea
         placeholder="Todo"
         className="rounded-md bg-gray-100 p-2 outline-none"
+        maxLength={TODO_CONTENT_MAX_CHARS}
         onChange={(e) => {
           setTodoContent(e.target.value);
+          setTodoCharacters(e.target.value.length);
         }}
         value={todoContent}
       />
+      <span className="px-2 text-sm font-light">
+        {todoCharacters}/{TODO_CONTENT_MAX_CHARS}
+      </span>
       <label htmlFor="isFavorite" className="flex justify-between">
         Set as favorite?
         <input
