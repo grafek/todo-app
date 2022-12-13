@@ -1,4 +1,5 @@
-import type { Todo } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
+import { TODOS_LIMIT } from "../utils/globals";
 import { trpc } from "../utils/trpc";
 
 function useToggleFavoriteTodo() {
@@ -6,20 +7,44 @@ function useToggleFavoriteTodo() {
 
   return trpc.todo.toggleFavorite.useMutation({
     async onMutate({ id, isFavorite }) {
-      await utils.todo.getAll.cancel();
+      await utils.todo.getInfiniteTodos.cancel();
 
       const prevData = utils.todo.getAll.getData();
 
-      utils.todo.getAll.setData((old): Todo[] => {
-        const selectedTodo = old?.find((todo: Todo) => todo.id === id);
-        selectedTodo ? (selectedTodo.isFavorite = isFavorite) : null;
-        return old ? old : [];
-      });
+      utils.todo.getInfiniteTodos.setInfiniteData(
+        (data) => {
+          if (!data) {
+            return {
+              pages: [],
+              pageParams: [],
+            };
+          }
 
+          const updatedTodos = data.pages.map((page) => ({
+            todos: page.todos.map((todo) =>
+              todo.id === id ? { ...todo, isFavorite } : todo
+            ),
+            nextCursor: page.nextCursor,
+          }));
+          
+          return {
+            ...data,
+            pages: updatedTodos,
+          };
+        },
+        { limit: TODOS_LIMIT }
+      );
       return { prevData };
     },
     onSettled() {
-      utils.todo.getAll.invalidate();
+      utils.todo.getInfiniteTodos.invalidate();
+    },
+    onError(err, _, ctx) {
+      utils.todo.getAll.setData(ctx?.prevData);
+      throw new TRPCError({
+        message: JSON.stringify(err),
+        code: "INTERNAL_SERVER_ERROR",
+      });
     },
   });
 }

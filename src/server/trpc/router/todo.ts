@@ -83,4 +83,35 @@ export const todoRouter = router({
 
     return todos;
   }),
+  getInfiniteTodos: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(20).nullish(),
+        cursor: z.any(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { prisma, session } = ctx;
+      const limit = input.limit ?? 5;
+      const { cursor } = input;
+
+      const todos = await prisma.todo.findMany({
+        take: limit + 1,
+        where: {
+          userId: session.user.id,
+        },
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+
+      if (todos.length > limit) {
+        const nextItem = todos.pop() as typeof todos[number];
+        nextCursor = nextItem.id;
+      }
+
+      return { todos, nextCursor };
+    }),
 });
