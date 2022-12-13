@@ -1,9 +1,10 @@
 import { useSession } from "next-auth/react";
-import { trpc } from "../../utils/trpc";
 import TodoItem from "./TodoItem";
 import { LoadingDots } from "../UI";
 import { AnimatePresence } from "framer-motion";
 import type { Todo } from "@prisma/client";
+import { useInfiniteTodos } from "../../hooks";
+import { useEffect } from "react";
 
 type TodoListProps = {
   filterFavorites: boolean;
@@ -11,19 +12,40 @@ type TodoListProps = {
 };
 
 function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
-  const { isLoading, isError, error, data } = trpc.todo.getAll.useQuery();
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, error } =
+    useInfiniteTodos();
+
+  const todos = data?.pages.flatMap((page) => page.todos) ?? [];
 
   const { data: sessionData } = useSession();
 
-  const favoriteTodos = data?.filter((todo) => {
+  useEffect(() => {
+    let fetching = false;
+    if (!hasNextPage) return;
+    const handleScroll = async () => {
+      const { scrollHeight, scrollTop, clientHeight } =
+        document.documentElement;
+      if (!fetching && scrollHeight - scrollTop <= clientHeight * 1.2) {
+        fetching = true;
+        if (hasNextPage) await fetchNextPage();
+        fetching = false;
+      }
+    };
+    document.addEventListener("scroll", handleScroll);
+    return () => {
+      document.removeEventListener("scroll", handleScroll);
+    };
+  }, [fetchNextPage, hasNextPage]);
+
+  const favoriteTodos = todos?.filter((todo) => {
     return todo.isFavorite;
   });
 
-  const checkedTodos = data?.filter((todo) => {
+  const checkedTodos = todos?.filter((todo) => {
     return todo.isChecked;
   });
 
-  const checkedAndFavoriteTodos = data?.filter((todo) => {
+  const checkedAndFavoriteTodos = todos?.filter((todo) => {
     if (todo.isChecked && todo.isFavorite) {
       return todo;
     }
@@ -43,7 +65,7 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
     ));
   }
 
-  if (data.length < 1) {
+  if (todos.length < 1) {
     return (todosContent = (
       <p className="p-12 text-center">
         No TODOS found! <br /> Add some by clicking {"+"} sign in top right
@@ -88,7 +110,8 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
       );
     });
   } else
-    todosContent = data.map((todo: Todo) => {
+    todosContent = todos.map((todo: Todo) => {
+
       return (
         <TodoItem
           key={`${todo.userId}/${todo.content.slice(0, 10)}/${
@@ -98,7 +121,7 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
         />
       );
     });
-    //TODO: MOVE FILTER LOGIC TO BACKEND
+  //TODO: MOVE FILTER LOGIC TO BACKEND
 
   return (
     <div className="p-2">

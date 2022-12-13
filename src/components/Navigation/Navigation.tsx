@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { AiFillStar, AiOutlinePlus, AiOutlineStar } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
 import AddTodo from "../Todo/AddTodo";
@@ -23,6 +23,10 @@ export function Navigation({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const { data: sessionData } = useSession();
+
+  const handleAdd = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
 
   return (
     <div
@@ -67,9 +71,7 @@ export function Navigation({
             <AiOutlinePlus
               className="text-4xl md:text-2xl"
               title="Add a TODO"
-              onClick={() => {
-                setIsModalOpen(true);
-              }}
+              onClick={handleAdd}
             />
           </button>
           <Modal
