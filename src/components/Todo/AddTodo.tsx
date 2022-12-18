@@ -1,8 +1,10 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
-import { todoSchema, TODO_CONTENT_MAX_CHARS } from "../../schemas/todo.schema";
+import { todoSchema } from "../../schemas/todo.schema";
 import { z } from "zod";
 import { useAddTodo } from "../../hooks";
+import { trpc } from "../../utils/trpc";
+import { TODOS_LIMIT, TODO_CONTENT_MAX_CHARS } from "../../utils/globals";
 
 function AddTodo({
   setIsOpen,
@@ -14,26 +16,49 @@ function AddTodo({
   const [isTodoFavorite, setIsTodoFavorite] = useState<boolean>(false);
   const [error, setError] = useState("");
 
+  const utils = trpc.useContext();
+
   const { mutate: addTodo, isLoading } = useAddTodo();
 
   const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const prevData = utils.todo.getInfiniteTodos.getInfiniteData({
+      limit: TODOS_LIMIT,
+    });
+
+    // check for an existing todo and throw an error
 
     try {
       todoSchema.parse({
         content: todoContent,
         isFavorite: isTodoFavorite,
       });
+      if (prevData) {
+        prevData.pages.map((page) => {
+          if (
+            page.todos.find(
+              (todo) => todo.content.trim() === todoContent.trim()
+            )
+          ) {
+            throw new Error("This todo already exists!");
+          }
+        });
+      }
     } catch (e) {
       if (e instanceof z.ZodError) {
         if (e.formErrors.fieldErrors.content) {
           setError(e.formErrors.fieldErrors.content.toString());
         }
-      }
+      } else if (e instanceof Error) setError(e.message);
       return;
     }
+    addTodo({
+      content: todoContent,
+      isFavorite: isTodoFavorite,
+    });
+
     setIsOpen(false);
-    addTodo({ content: todoContent, isFavorite: isTodoFavorite });
   };
 
   return (

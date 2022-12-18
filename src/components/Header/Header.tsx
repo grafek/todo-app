@@ -10,9 +10,7 @@ function Header({ children: Navigation }: HeaderPorps) {
 
   const firstName = getFirstName(sessionData);
   const welcomeMessage = firstName ? (
-    <p className="max-w-[160px] text-center sm:max-w-none">
-      👋 Hi, {firstName} !
-    </p>
+    <p className="text-center sm:max-w-none">👋 Hi, {firstName} !</p>
   ) : null;
 
   return (

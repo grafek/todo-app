@@ -18,11 +18,7 @@ export const todoRouter = router({
     return addedTodo;
   }),
   delete: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      })
-    )
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
@@ -87,7 +83,7 @@ export const todoRouter = router({
     .input(
       z.object({
         limit: z.number().min(1).max(20).nullish(),
-        cursor: z.any(),
+        cursor: z.string().nullish(),
       })
     )
     .query(async ({ input, ctx }) => {
