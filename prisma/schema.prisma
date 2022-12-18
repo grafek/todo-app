@@ -60,9 +60,8 @@ model VerificationToken {
 model Todo {
   id         String   @id @default(cuid())
   userId     String?
-  content    String
+  content    String   @unique
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
   isFavorite Boolean  @default(false)
   isChecked  Boolean  @default(false)
   User       User?    @relation(fields: [userId], references: [id])

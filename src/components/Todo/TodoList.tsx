@@ -3,8 +3,7 @@ import TodoItem from "./TodoItem";
 import { LoadingDots } from "../UI";
 import { AnimatePresence } from "framer-motion";
 import type { Todo } from "@prisma/client";
-import { useInfiniteTodos } from "../../hooks";
-import { useEffect } from "react";
+import { useInfiniteTodos, useInfiniteScroll } from "../../hooks";
 
 type TodoListProps = {
   filterFavorites: boolean;
@@ -12,121 +11,63 @@ type TodoListProps = {
 };
 
 function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, error } =
-    useInfiniteTodos();
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+    error,
+  } = useInfiniteTodos();
+
+  useInfiniteScroll({ fetchNextPage, hasNextPage });
 
   const todos = data?.pages.flatMap((page) => page.todos) ?? [];
 
-  const { data: sessionData } = useSession();
-
-  useEffect(() => {
-    let fetching = false;
-    if (!hasNextPage) return;
-    const handleScroll = async () => {
-      const { scrollHeight, scrollTop, clientHeight } =
-        document.documentElement;
-      if (!fetching && scrollHeight - scrollTop <= clientHeight * 1.2) {
-        fetching = true;
-        if (hasNextPage) await fetchNextPage();
-        fetching = false;
-      }
-    };
-    document.addEventListener("scroll", handleScroll);
-    return () => {
-      document.removeEventListener("scroll", handleScroll);
-    };
-  }, [fetchNextPage, hasNextPage]);
-
-  const favoriteTodos = todos?.filter((todo) => {
-    return todo.isFavorite;
-  });
-
-  const checkedTodos = todos?.filter((todo) => {
-    return todo.isChecked;
-  });
-
-  const checkedAndFavoriteTodos = todos?.filter((todo) => {
-    if (todo.isChecked && todo.isFavorite) {
-      return todo;
-    }
-  });
+  const { data: sessionData, status } = useSession();
 
   if (!sessionData?.user?.id) return null;
 
-  let todosContent;
-
-  if (isLoading) {
-    return <LoadingDots />;
+  if (status === "authenticated" && isLoading) {
+    return (
+      <div className="text-center">
+        <LoadingDots />
+      </div>
+    );
   }
 
   if (isError) {
-    return (todosContent = (
-      <span className="text-center">Error: {error?.message}</span>
-    ));
+    return <div className="text-center">Error: {error?.message}</div>;
   }
 
   if (todos.length < 1) {
-    return (todosContent = (
-      <p className="p-12 text-center">
-        No TODOS found! <br /> Add some by clicking {"+"} sign in top right
-        corner 🙂
-      </p>
-    ));
+    return (
+      <div className="text-center">
+        No TODOS found! <br />
+        Add some by clicking {"+"} sign🙂
+      </div>
+    );
   }
-
-  if (filterFavorites && favoriteTodos && !filterChecked) {
-    todosContent = favoriteTodos.map((todo: Todo) => {
+  const todosContent = todos
+    .filter((todo) => (filterChecked ? todo.isChecked : todo))
+    .filter((todo) => (filterFavorites ? todo.isFavorite : todo))
+    .map((todo: Todo) => {
       return (
         <TodoItem
-          key={`${todo.userId}/${todo.content.slice(0, 10)}/${
-            sessionData.expires
-          }`}
-          // clientside key data to not refetch after obtaining id from server when...
-          // ... setting todo.id as key with optimistic update
+          key={`${todo.userId}/${todo.content}/${sessionData.expires}`}
           todo={todo}
         />
       );
     });
-  } else if (filterChecked && filterFavorites && checkedAndFavoriteTodos) {
-    todosContent = checkedAndFavoriteTodos.map((todo: Todo) => {
-      return (
-        <TodoItem
-          key={`${todo.userId}/${todo.content.slice(0, 10)}/${
-            sessionData.expires
-          }`}
-          todo={todo}
-        />
-      );
-    });
-  } else if (filterChecked && checkedTodos) {
-    todosContent = checkedTodos.map((todo: Todo) => {
-      return (
-        <TodoItem
-          key={`${todo.userId}/${todo.content.slice(0, 10)}/${
-            sessionData.expires
-          }`}
-          todo={todo}
-        />
-      );
-    });
-  } else
-    todosContent = todos.map((todo: Todo) => {
-
-      return (
-        <TodoItem
-          key={`${todo.userId}/${todo.content.slice(0, 10)}/${
-            sessionData.expires
-          }`}
-          todo={todo}
-        />
-      );
-    });
-  //TODO: MOVE FILTER LOGIC TO BACKEND
 
   return (
     <div className="p-2">
       <ul className="flex flex-col gap-2">
-        <AnimatePresence mode="sync">{todosContent}</AnimatePresence>
+        <AnimatePresence mode="sync">
+          {todosContent}
+          {isFetchingNextPage ? <LoadingDots /> : null}
+        </AnimatePresence>
       </ul>
     </div>
   );

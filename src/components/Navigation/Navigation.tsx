@@ -29,10 +29,7 @@ export function Navigation({
   }, []);
 
   return (
-    <div
-      className="fixed left-0 bottom-0 z-10 flex w-full justify-around gap-4 bg-[#142570]/80 py-2 md:static md:w-fit md:gap-4 md:bg-transparent
-  md:py-0"
-    >
+    <div className="fixed left-0 bottom-0 z-10 flex w-full justify-around gap-4 bg-[#142570]/80 px-10 py-2 md:static md:w-fit md:gap-4 md:bg-transparent md:py-0 md:px-0">
       {sessionData ? (
         <>
           <button
@@ -101,8 +98,7 @@ export function Navigation({
         <span className="py-2">
           👋 Hi,{" "}
           <button
-            className="cursor-pointer font-semibold italic underline
-        "
+            className="cursor-pointer font-semibold italic underline"
             onClick={() => {
               signIn();
             }}

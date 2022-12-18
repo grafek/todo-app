@@ -1,6 +1,5 @@
 import { boolean, object, string } from "zod";
-
-export const TODO_CONTENT_MAX_CHARS = 50;
+import { TODO_CONTENT_MAX_CHARS } from "../utils/globals";
 
 export const todoSchema = object({
   content: string()

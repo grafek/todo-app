@@ -42,7 +42,7 @@ function Modal({ setIsOpen, isOpen, children, actionTitle }: ModalProps) {
             exit={{ opacity: 0, scale: 0.4 }}
             id="modal"
             onClick={(e) => e.stopPropagation()}
-            className="fixed z-40 flex min-h-[150px] w-3/4 max-w-xl flex-1 flex-col gap-8 rounded-md  bg-[#e1e1f8e7] p-3 text-black "
+            className="fixed z-40 flex min-h-[150px] w-3/4 max-w-xl flex-1 flex-col gap-8 rounded-md  bg-[#d9e0f8e7] p-3 text-black "
           >
             <div className="flex justify-between">
               <h2 className="text-xl font-semibold sm:text-2xl lg:text-3xl">
