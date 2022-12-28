@@ -1,11 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { AiFillStar, AiOutlinePlus, AiOutlineStar } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
+import { BiLogIn, BiLogOut } from "react-icons/bi";
+import { signIn, signOut, useSession } from "next-auth/react";
 import AddTodo from "../Todo/AddTodo";
 import { Modal } from "../UI";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { BiLogIn, BiLogOut } from "react-icons/bi";
+import { useModal } from "../../hooks";
 
 type NavigationProps = {
   setFilterFavorites: Dispatch<SetStateAction<boolean>>;
@@ -14,19 +15,29 @@ type NavigationProps = {
   filterChecked: boolean;
 };
 
-export function Navigation({
+function Navigation({
   setFilterFavorites,
   filterFavorites,
   filterChecked,
   setFilterChecked,
 }: NavigationProps) {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const { hideModal, isModalOpen, showModal: showAddTodoModal } = useModal();
+
+  const {
+    showModal: showLogoutModal,
+    isModalOpen: isLogoutModalOpen,
+    hideModal: hideLogoutModal,
+  } = useModal();
 
   const { data: sessionData } = useSession();
 
   const handleAdd = useCallback(() => {
-    setIsModalOpen(true);
-  }, []);
+    showAddTodoModal();
+  }, [showAddTodoModal]);
+
+  const handleLogout = useCallback(() => {
+    showLogoutModal();
+  }, [showLogoutModal]);
 
   return (
     <div className="fixed left-0 bottom-0 z-10 flex w-full justify-around gap-4 bg-[#142570]/80 px-10 py-2 md:static md:w-fit md:gap-4 md:bg-transparent md:py-0 md:px-0">
@@ -74,21 +85,37 @@ export function Navigation({
           <Modal
             isOpen={isModalOpen}
             actionTitle="Add TODO"
-            setIsOpen={setIsModalOpen}
+            hideModal={hideModal}
           >
-            <AddTodo setIsOpen={setIsModalOpen} />
+            <AddTodo hideModal={hideModal} />
           </Modal>
           <button className={`border-l border-gray-700 pl-6`}>
             {sessionData ? (
-              <BiLogOut
-                title="Logout"
-                className="text-2xl"
-                onClick={() => signOut()}
-              />
+              <>
+                <BiLogOut
+                  title="Logout"
+                  className="text-3xl md:text-2xl"
+                  onClick={handleLogout}
+                />
+                <Modal
+                  isOpen={isLogoutModalOpen}
+                  actionTitle="Sign out"
+                  hideModal={hideLogoutModal}
+                >
+                  <h1>Are you sure you want to sign out?</h1>
+                  <button
+                    className="m-auto w-1/3 min-w-[100px] rounded-md bg-red-600 px-4 py-2 text-white"
+                    title="Logout"
+                    onClick={() => signOut()}
+                  >
+                    Sign out
+                  </button>
+                </Modal>
+              </>
             ) : (
               <BiLogIn
                 title="Login"
-                className="text-2xl"
+                className="text-3xl md:text-2xl"
                 onClick={() => signIn()}
               />
             )}
@@ -111,3 +138,4 @@ export function Navigation({
     </div>
   );
 }
+export default Navigation;

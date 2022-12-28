@@ -13,7 +13,7 @@ const containerVariants = {
     },
   },
 };
-const dotClasses = "block h-2 w-2 rounded-full bg-black/80";
+const dotClasses = "block h-2 w-2 rounded-full bg-neutral-200/80";
 
 const dotVariants = {
   initial: {

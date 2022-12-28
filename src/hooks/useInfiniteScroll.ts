@@ -1,6 +1,6 @@
 import type { Todo } from "@prisma/client";
 import type { InfiniteQueryObserverResult } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type useInfiniteScrollProps = {
   fetchNextPage: () => Promise<
