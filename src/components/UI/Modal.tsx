@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
 import { createPortal } from "react-dom";
 import { AiOutlineClose } from "react-icons/ai";
 import { AnimatePresence, motion } from "framer-motion";
 
 type ModalProps = {
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  hideModal: () => void;
   children: React.ReactNode;
   actionTitle: string;
   isOpen: boolean;
 };
 
-function Modal({ setIsOpen, isOpen, children, actionTitle }: ModalProps) {
+function Modal({ hideModal, isOpen, children, actionTitle }: ModalProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -31,7 +30,7 @@ function Modal({ setIsOpen, isOpen, children, actionTitle }: ModalProps) {
           exit={{ opacity: 0 }}
           id="backdrop"
           onClick={() => {
-            setIsOpen(false);
+            hideModal();
           }}
           className="fixed z-20 flex h-full w-full items-center justify-center bg-black/50"
         >
@@ -51,7 +50,7 @@ function Modal({ setIsOpen, isOpen, children, actionTitle }: ModalProps) {
               <button className="self-end">
                 <AiOutlineClose
                   onClick={() => {
-                    setIsOpen(false);
+                    hideModal();
                   }}
                   className="text-2xl text-red-600 transition-transform duration-300 hover:scale-110 md:text-3xl"
                 />

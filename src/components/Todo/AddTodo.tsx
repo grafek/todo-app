@@ -1,4 +1,3 @@
-import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 import { todoSchema } from "../../schemas/todo.schema";
 import { z } from "zod";
@@ -6,11 +5,7 @@ import { useAddTodo } from "../../hooks";
 import { trpc } from "../../utils/trpc";
 import { TODOS_LIMIT, TODO_CONTENT_MAX_CHARS } from "../../utils/globals";
 
-function AddTodo({
-  setIsOpen,
-}: {
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
-}) {
+function AddTodo({ hideModal }: { hideModal: () => void }) {
   const [todoContent, setTodoContent] = useState<string>("");
   const [todoCharacters, setTodoCharacters] = useState<number>(0);
   const [isTodoFavorite, setIsTodoFavorite] = useState<boolean>(false);
@@ -58,7 +53,7 @@ function AddTodo({
       isFavorite: isTodoFavorite,
     });
 
-    setIsOpen(false);
+    hideModal();
   };
 
   return (

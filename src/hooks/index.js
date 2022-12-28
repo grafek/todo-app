@@ -4,3 +4,4 @@ export { default as useToggleCheckedTodo } from "./useToggleCheckedTodo";
 export { default as useAddTodo } from "./useAddTodo";
 export { default as useInfiniteTodos } from "./useInfiniteTodos";
 export { default as useInfiniteScroll } from "./useInfiniteScroll";
+export { default as useModal } from "./useModal";

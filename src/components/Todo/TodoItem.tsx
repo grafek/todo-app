@@ -1,11 +1,11 @@
 import type { Todo } from "@prisma/client";
-import { useState } from "react";
 import { AiOutlineClose, AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
 import { motion } from "framer-motion";
 import { Modal } from "../UI";
 import {
   useDeleteTodo,
+  useModal,
   useToggleCheckedTodo,
   useToggleFavoriteTodo,
 } from "../../hooks/";
@@ -18,7 +18,7 @@ type TodoItemProps = {
 function TodoItem({ todo }: TodoItemProps) {
   const { id, content, createdAt, isChecked, isFavorite } = todo;
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const { isModalOpen, hideModal, showModal } = useModal();
 
   const { mutate: deleteTodo } = useDeleteTodo();
   const { mutate: toggleFavorite } = useToggleFavoriteTodo();
@@ -33,7 +33,7 @@ function TodoItem({ todo }: TodoItemProps) {
     </span>
   );
 
-  const hasServerId = id.length > 10 ? true : false;
+  const hasServerId = id.length > 10;
 
   return (
     <motion.li
@@ -53,7 +53,7 @@ function TodoItem({ todo }: TodoItemProps) {
       <span className="relative">{content}</span>
       <span className="flex gap-2">
         <button
-          className="text-xl md:text-2xl"
+          className="text-2xl"
           onClick={() => {
             toggleChecked({ id, isChecked: isToggledCheck });
           }}
@@ -65,7 +65,7 @@ function TodoItem({ todo }: TodoItemProps) {
           )}
         </button>
         <button
-          className="text-xl md:text-2xl"
+          className="text-2xl"
           onClick={() => {
             toggleFavorite({ id, isFavorite: isToggledFavorite });
           }}
@@ -80,13 +80,13 @@ function TodoItem({ todo }: TodoItemProps) {
           )}
         </button>
         <button
-          className={`text-xl ${
+          className={`${
             hasServerId ? "text-red-600" : "text-white"
-          } transition-colors md:text-2xl`}
+          } text-2xl transition-colors`}
           title="Remove TODO"
           onClick={() => {
             if (hasServerId) {
-              setIsModalOpen(true);
+              showModal();
             }
           }}
         >
@@ -98,14 +98,14 @@ function TodoItem({ todo }: TodoItemProps) {
       <Modal
         isOpen={isModalOpen}
         actionTitle="Remove TODO"
-        setIsOpen={setIsModalOpen}
+        hideModal={hideModal}
       >
         <>
           <p>Are you sure you want to remove this TODO?</p>
           <button
             className="m-auto w-1/3 min-w-[100px] rounded-md bg-red-500 px-4 py-2 text-white"
             onClick={() => {
-              setIsModalOpen(false);
+              hideModal();
               deleteTodo({ id });
             }}
           >

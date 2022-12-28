@@ -14,8 +14,9 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  pages: { signIn: "/auth/signin" },
   // Configure one or more authentication providers
-  secret:process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
