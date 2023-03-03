@@ -29,7 +29,7 @@ I also created another full stack project with way more features - **[Fitter](ht
 **Deployment** - [Vercel](https://vercel.com/)  
 **Linting** - [ESLint](https://eslint.org)  
 
-**Bootstrapped the project with** [Create T3 app](https://create.t3.gg/)  
+**Bootstrapped the project with** [create-t3-app](https://create.t3.gg/)  
 
 https://todo-app-grafek.vercel.app/
 
