@@ -41,35 +41,35 @@ function TodoList({ filterFavorites, filterChecked }: TodoListProps) {
     return <div className="text-center">Error: {error?.message}</div>;
   }
 
-  if (todos.length < 1) {
+  const filteredTodos = todos
+    .filter((todo) => (filterChecked ? todo.isChecked : todo))
+    .filter((todo) => (filterFavorites ? todo.isFavorite : todo));
+
+  if (filteredTodos.length < 1) {
     return (
       <div className="text-center">
         No TODOS found! <br />
-        Add some by clicking {"+"} sign🙂
+        Add some by clicking {"+"} sign or check filtering
       </div>
     );
   }
-  const todosContent = todos
-    .filter((todo) => (filterChecked ? todo.isChecked : todo))
-    .filter((todo) => (filterFavorites ? todo.isFavorite : todo))
-    .map((todo: Todo) => {
-      return (
-        <TodoItem
-          key={`${todo.userId}/${todo.content}/${sessionData.expires}`}
-          todo={todo}
-        />
-      );
-    });
+
+  const todosContent = filteredTodos.map((todo: Todo) => {
+    return (
+      <TodoItem
+        key={`${todo.userId}/${todo.content}/${sessionData.expires}`}
+        todo={todo}
+      />
+    );
+  });
 
   return (
-    <div className="p-2">
-      <ul className="flex flex-col gap-2">
-        <AnimatePresence mode="sync">
-          {todosContent}
-          {isFetchingNextPage ? <LoadingDots /> : null}
-        </AnimatePresence>
-      </ul>
-    </div>
+    <ul className="flex flex-col gap-2">
+      <AnimatePresence mode="sync">
+        {todosContent}
+        {isFetchingNextPage ? <LoadingDots /> : null}
+      </AnimatePresence>
+    </ul>
   );
 }
 

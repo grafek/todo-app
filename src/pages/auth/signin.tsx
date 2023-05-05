@@ -19,26 +19,22 @@ const SignIn = ({
   }, [router, session, pushed]);
 
   return (
-    <section>
-      <div className="flex h-screen items-center justify-center">
-        {providers
-          ? Object.values(providers).map((provider) => {
-              return (
-                <div key={provider.name}>
-                  <button
-                    onClick={() => signIn(provider.id)}
-                    className="flex items-center gap-2 rounded-md border p-4 shadow-md"
-                  >
-                    <FcGoogle className="text-2xl" />
-                    <p className="font-medium text-blue-500">
-                      Sign in with {provider.name}
-                    </p>
-                  </button>
-                </div>
-              );
-            })
-          : ""}
-      </div>
+    <section className="grid h-screen place-items-center">
+      {providers
+        ? Object.values(providers).map((provider) => {
+            return (
+              <div key={provider.name}>
+                <button
+                  onClick={() => signIn(provider.id)}
+                  className="flex items-center gap-2 rounded-md border border-gray-400 p-4 font-semibold text-gray-300 shadow-md transition-all hover:bg-blue-950"
+                >
+                  <FcGoogle className="text-2xl" />
+                  <span>Sign in with {provider.name}</span>
+                </button>
+              </div>
+            );
+          })
+        : ""}
     </section>
   );
 };

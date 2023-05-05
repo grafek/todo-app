@@ -9,7 +9,6 @@ import {
   useToggleCheckedTodo,
   useToggleFavoriteTodo,
 } from "../../hooks/";
-import { getTime, getDate } from "../../utils";
 
 type TodoItemProps = {
   todo: Todo;
@@ -28,8 +27,12 @@ function TodoItem({ todo }: TodoItemProps) {
   const isToggledFavorite = isFavorite ? false : true;
 
   const timestampContent = (
-    <span className="absolute bottom-[1px] right-2 text-[13px] font-thin italic text-black ">
-      created at: {getTime(createdAt) + " | " + getDate(createdAt)}
+    <span className="absolute bottom-[1px] right-2 text-xs italic text-black ">
+      created at:{" "}
+      {new Intl.DateTimeFormat("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(createdAt)}
     </span>
   );
 
@@ -43,12 +46,12 @@ function TodoItem({ todo }: TodoItemProps) {
       transition={{ duration: 0.4 }}
       exit={{ scale: 0.7, opacity: 0 }}
       className={`${
-        isModalOpen ? "bg-red-400 " : "bg-blue-400 odd:bg-blue-500"
+        isModalOpen ? "bg-red-400 " : "bg-blue-400 odd:bg-blue-600"
       } ${
         isChecked
           ? "italic line-through decoration-red-600/50 decoration-2"
           : ""
-      } relative flex items-center justify-between rounded-md p-4 transition-colors duration-300 md:py-6`}
+      } relative overflow-x-auto flex items-center justify-between rounded-md p-4 transition-colors duration-300 md:py-6`}
     >
       <span className="relative">{content}</span>
       <span className="flex gap-2">
@@ -103,7 +106,7 @@ function TodoItem({ todo }: TodoItemProps) {
         <>
           <p>Are you sure you want to remove this TODO?</p>
           <button
-            className="m-auto w-1/3 min-w-[100px] rounded-md bg-red-500 px-4 py-2 text-white"
+            className="m-auto w-1/3 min-w-[100px] rounded-md bg-red-500 px-4 py-2 font-semibold text-white"
             onClick={() => {
               hideModal();
               deleteTodo({ id });

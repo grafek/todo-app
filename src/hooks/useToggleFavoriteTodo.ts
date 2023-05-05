@@ -12,6 +12,7 @@ function useToggleFavoriteTodo() {
       const prevData = utils.todo.getAll.getData();
 
       utils.todo.getInfiniteTodos.setInfiniteData(
+        { limit: TODOS_LIMIT },
         (data) => {
           if (!data) {
             return {
@@ -26,13 +27,12 @@ function useToggleFavoriteTodo() {
             ),
             nextCursor: page.nextCursor,
           }));
-          
+
           return {
             ...data,
             pages: updatedTodos,
           };
-        },
-        { limit: TODOS_LIMIT }
+        }
       );
       return { prevData };
     },
@@ -40,7 +40,7 @@ function useToggleFavoriteTodo() {
       utils.todo.getInfiniteTodos.invalidate();
     },
     onError(err, _, ctx) {
-      utils.todo.getAll.setData(ctx?.prevData);
+      utils.todo.getAll.setData(undefined, () => ctx?.prevData);
       throw new TRPCError({
         message: JSON.stringify(err),
         code: "INTERNAL_SERVER_ERROR",

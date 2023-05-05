@@ -6,9 +6,9 @@ import { trpc } from "../../utils/trpc";
 import { TODOS_LIMIT, TODO_CONTENT_MAX_CHARS } from "../../utils/globals";
 
 function AddTodo({ hideModal }: { hideModal: () => void }) {
-  const [todoContent, setTodoContent] = useState<string>("");
-  const [todoCharacters, setTodoCharacters] = useState<number>(0);
-  const [isTodoFavorite, setIsTodoFavorite] = useState<boolean>(false);
+  const [todoContent, setTodoContent] = useState("");
+  const [todoCharacters, setTodoCharacters] = useState(0);
+  const [isTodoFavorite, setIsTodoFavorite] = useState(false);
   const [error, setError] = useState("");
 
   const utils = trpc.useContext();
