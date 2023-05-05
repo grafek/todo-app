@@ -4,8 +4,8 @@ import TodoList from "../components/Todo/TodoList";
 import Header from "../components/Header";
 
 const Home: NextPage = () => {
-  const [filterFavorites, setFilterFavorites] = useState<boolean>(false);
-  const [filterChecked, setFilterChecked] = useState<boolean>(false);
+  const [filterFavorites, setFilterFavorites] = useState(false);
+  const [filterChecked, setFilterChecked] = useState(false);
 
   return (
     <>

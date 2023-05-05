@@ -1,5 +1,4 @@
-import type { Dispatch, SetStateAction } from "react";
-import { useCallback } from "react";
+import { type Dispatch, type SetStateAction, useCallback } from "react";
 import { AiFillStar, AiOutlinePlus, AiOutlineStar } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
 import { BiLogIn, BiLogOut } from "react-icons/bi";
