@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 type useInfiniteScrollProps = {
   fetchNextPage: () => Promise<
-    InfiniteQueryObserverResult<{ todos: Todo[]; nextCursor: any }>
+    InfiniteQueryObserverResult<{ todos: Todo[]; nextCursor: unknown }>
   >;
   hasNextPage: boolean | undefined;
 };

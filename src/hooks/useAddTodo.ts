@@ -13,6 +13,7 @@ function useAddTodo() {
       await utils.todo.getInfiniteTodos.cancel();
 
       utils.todo.getInfiniteTodos.setInfiniteData(
+        { limit: TODOS_LIMIT },
         (old) => {
           if (!old || !sessionData?.user) {
             return {
@@ -54,8 +55,7 @@ function useAddTodo() {
             ...old,
             pages: [firstPage, ...restPages],
           };
-        },
-        { limit: TODOS_LIMIT }
+        }
       );
     },
     onSettled() {
